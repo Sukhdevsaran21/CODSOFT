@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sukhdev Saran Calculator</title>
+  <style>
+    :root{
+      --bg:#0b0f1a;
+      --card:#111827;
+      --accent:#38bdf8;
+      --accent2:#a855f7;
+      --text:#eef2ff;
+      --muted:#94a3b8;
+    }
+    *{box-sizing:border-box; margin:0; padding:0; font-family:Poppins, sans-serif;}
+    body{
+      background:radial-gradient(circle at 20% 20%, #1e3a8a, #0f172a);
+      color:var(--text);
+      min-height:100vh; display:flex; justify-content:center; align-items:center;
+      padding:20px;
+    }
+    .wrapper{
+      width:420px; background:var(--card); border-radius:20px; padding:24px;
+      box-shadow:0 10px 40px rgba(0,0,0,0.6);
+    }
+    .title{
+      text-align:center; margin-bottom:20px;
+    }
+    .title h1{
+      font-size:26px; font-weight:700; background:linear-gradient(90deg, var(--accent), var(--accent2));
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    }
+    .display{
+      background:#0f1a2f; padding:18px; border-radius:12px; margin-bottom:15px;
+      min-height:60px; font-size:22px; text-align:right; overflow-x:auto;
+    }
+
+    .buttons{
+      display:grid; grid-template-columns:repeat(4, 1fr); gap:12px;
+    }
+    button{
+      padding:14px; font-size:18px; border:none; border-radius:12px; cursor:pointer;
+      transition:0.2s;
+    }
+    .num{background:#1e293b; color:var(--text);} 
+    .op{background:#334155; color:var(--accent);} 
+    .eq{background:linear-gradient(90deg, var(--accent), var(--accent2)); color:#000; font-weight:700;} 
+    .clr{background:#ef4444; color:#fff;}
+    button:hover{transform:scale(1.05);} 
+
+    /* Converter */
+    .converter{
+      margin-top:26px; background:#0f1a2f; padding:18px; border-radius:16px;
+    }
+    .converter h2{font-size:18px; margin-bottom:10px; color:var(--accent);} 
+    .converter select, .converter input{
+      width:100%; padding:10px; margin:8px 0; border-radius:10px; border:none; font-size:15px;
+      background:#1e293b; color:var(--text);
+    }
+    .convert-btn{
+      background:linear-gradient(90deg, var(--accent), var(--accent2));
+      color:#000; font-weight:600; border:none; padding:10px; border-radius:10px;
+      width:100%; cursor:pointer;
+      margin-top:10px; font-size:16px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrapper">
+  <div class="title">
+    <h1>Sukhdev Saran Calculator</h1>
+  </div>
+
+  <!-- Display -->
+  <div class="display" id="display">0</div>
+
+  <!-- Buttons -->
+  <div class="buttons">
+    <button class="clr" onclick="clearDisplay()">C</button>
+    <button class="op" onclick="addOp('%')">%</button>
+    <button class="op" onclick="addOp('/')">/</button>
+    <button class="op" onclick="addOp('*')">*</button>
+
+    <button class="num" onclick="addNum(7)">7</button>
+    <button class="num" onclick="addNum(8)">8</button>
+    <button class="num" onclick="addNum(9)">9</button>
+    <button class="op" onclick="addOp('-')">-</button>
+
+    <button class="num" onclick="addNum(4)">4</button>
+    <button class="num" onclick="addNum(5)">5</button>
+    <button class="num" onclick="addNum(6)">6</button>
+    <button class="op" onclick="addOp('+')">+</button>
+
+    <button class="num" onclick="addNum(1)">1</button>
+    <button class="num" onclick="addNum(2)">2</button>
+    <button class="num" onclick="addNum(3)">3</button>
+    <button class="eq" onclick="calculate()">=</button>
+
+    <button class="num" style="grid-column: span 2" onclick="addNum(0)">0</button>
+    <button class="num" onclick="addNum('.')">.</button>
+  </div>
+
+  <!-- Unit Converter -->
+  <div class="converter">
+    <h2>Unit Converter</h2>
+
+    <input type="number" id="inputValue" placeholder="Enter value"> 
+
+    <select id="fromUnit">
+      <option value="cm">Centimeter (cm)</option>
+      <option value="m">Meter (m)</option>
+      <option value="km">Kilometer (km)</option>
+      <option value="inch">Inch</option>
+      <option value="ft">Feet</option>
+    </select>
+
+    <select id="toUnit">
+      <option value="cm">Centimeter (cm)</option>
+      <option value="m">Meter (m)</option>
+      <option value="km">Kilometer (km)</option>
+      <option value="inch">Inch</option>
+      <option value="ft">Feet</option>
+    </select>
+
+    <button class="convert-btn" onclick="convertUnit()">Convert</button>
+
+    <div id="convertResult" style="margin-top:10px; font-size:16px;"></div>
+  </div>
+</div>
+
+<script>
+  let display = document.getElementById('display');
+  let expression = "";
+
+  function addNum(num){
+    expression += num;
+    display.textContent = expression;
+  }
+
+  function addOp(op){
+    expression += op;
+    display.textContent = expression;
+  }
+
+  function clearDisplay(){
+    expression = "";
+    display.textContent = "0";
+  }
+
+  function calculate(){
+    try{
+      let result = eval(expression);
+      display.textContent = result;
+      expression = result.toString();
+    }catch{
+      display.textContent = "Error";
+    }
+  }
+
+
+  // Unit Conversion Logic
+  const factors = {
+    cm: 1,
+    m: 100,
+    km: 100000,
+    inch: 2.54,
+    ft: 30.48
+  };
+
+  function convertUnit(){
+    let value = parseFloat(document.getElementById('inputValue').value);
+    let from = document.getElementById('fromUnit').value;
+    let to = document.getElementById('toUnit').value;
+
+    if(isNaN(value)){
+      document.getElementById('convertResult').innerHTML = "Please enter a valid number!";
+      return;
+    }
+
+    let result = value * (factors[from] / factors[to]);
+    document.getElementById('convertResult').innerHTML = `<b>Result: </b> ${result.toFixed(4)} ${to}`;
+  }
+
+</script>
+
+</body>
+</html>
